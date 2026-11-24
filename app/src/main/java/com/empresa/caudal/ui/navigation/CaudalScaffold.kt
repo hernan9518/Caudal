@@ -36,6 +36,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.empresa.caudal.data.local.entity.TransactionWithCategory
 import com.empresa.caudal.ui.CaudalViewModel
+import com.empresa.caudal.ui.screens.activity.ActivityScreen
 import com.empresa.caudal.ui.screens.categories.CategoriesScreen
 import com.empresa.caudal.ui.screens.transaction.TransactionEditorSheet
 import com.empresa.caudal.util.DateUtils
@@ -48,7 +49,9 @@ fun CaudalScaffold(viewModel: CaudalViewModel) {
     val selectedMonth by viewModel.selectedMonth.collectAsState()
 
     val categories by viewModel.categories.collectAsState()
+    val monthlyTransactions by viewModel.monthlyTransactions.collectAsState()
     val settings by viewModel.userSettings.collectAsState()
+
     var showTransactionSheet by remember { mutableStateOf(false) }
     var editingTransaction by remember { mutableStateOf<TransactionWithCategory?>(null) }
 
@@ -123,16 +126,24 @@ fun CaudalScaffold(viewModel: CaudalViewModel) {
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(Screen.Activity.route) {
-                PlaceholderScreen("Actividad (Mañana)")
+                ActivityScreen(
+                    transactions = monthlyTransactions,
+                    categories = categories,
+                    currencySymbol = settings.currencySymbol,
+                    onTransactionClick = { item ->
+                        editingTransaction = item
+                        showTransactionSheet = true
+                    }
+                )
             }
             composable(Screen.Summary.route) {
-                PlaceholderScreen("Resumen (Mañana)")
+                PlaceholderScreen("Resumen (Commit #9)")
             }
             composable(Screen.Budget.route) {
-                PlaceholderScreen("Presupuesto (Mañana)")
+                PlaceholderScreen("Presupuesto (Commit #10)")
             }
             composable(Screen.Analytics.route) {
-                PlaceholderScreen("Análisis (Mañana)")
+                PlaceholderScreen("Análisis (Commit #11)")
             }
             composable(Screen.Categories.route) {
                 CategoriesScreen(
@@ -148,7 +159,7 @@ fun CaudalScaffold(viewModel: CaudalViewModel) {
                 )
             }
             composable(Screen.Settings.route) {
-                PlaceholderScreen("Ajustes (Mañana)")
+                PlaceholderScreen("Ajustes (Commit #12)")
             }
         }
     }
