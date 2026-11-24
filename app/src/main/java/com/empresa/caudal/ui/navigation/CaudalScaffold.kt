@@ -36,6 +36,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.empresa.caudal.data.local.entity.TransactionWithCategory
 import com.empresa.caudal.ui.CaudalViewModel
+import com.empresa.caudal.ui.screens.transaction.TransactionEditorSheet
 import com.empresa.caudal.util.DateUtils
 
 @Composable
@@ -45,6 +46,8 @@ fun CaudalScaffold(viewModel: CaudalViewModel) {
     val currentRoute = backStackEntry?.destination?.route
     val selectedMonth by viewModel.selectedMonth.collectAsState()
 
+    val categories by viewModel.categories.collectAsState()
+    val settings by viewModel.userSettings.collectAsState()
     var showTransactionSheet by remember { mutableStateOf(false) }
     var editingTransaction by remember { mutableStateOf<TransactionWithCategory?>(null) }
 
@@ -119,7 +122,7 @@ fun CaudalScaffold(viewModel: CaudalViewModel) {
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(Screen.Activity.route) {
-                PlaceholderScreen("Actividad (Próximo paso)")
+                PlaceholderScreen("Actividad (Mañana)")
             }
             composable(Screen.Summary.route) {
                 PlaceholderScreen("Resumen (Mañana)")
@@ -137,6 +140,27 @@ fun CaudalScaffold(viewModel: CaudalViewModel) {
                 PlaceholderScreen("Ajustes (Mañana)")
             }
         }
+    }
+
+    if (showTransactionSheet) {
+        TransactionEditorSheet(
+            categories = categories,
+            currencySymbol = settings.currencySymbol,
+            existingTransaction = editingTransaction,
+            onDismiss = {
+                showTransactionSheet = false
+                editingTransaction = null
+            },
+            onSave = { id, amount, note, dateMillis, type, categoryId ->
+                viewModel.saveTransaction(id, amount, note, dateMillis, type, categoryId)
+            },
+            onDelete = { transaction ->
+                viewModel.deleteTransaction(transaction)
+            },
+            onManageCategoriesClick = {
+                navController.navigate(Screen.Categories.route)
+            }
+        )
     }
 }
 
