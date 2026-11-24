@@ -38,6 +38,7 @@ import com.empresa.caudal.data.local.entity.TransactionWithCategory
 import com.empresa.caudal.ui.CaudalViewModel
 import com.empresa.caudal.ui.screens.activity.ActivityScreen
 import com.empresa.caudal.ui.screens.categories.CategoriesScreen
+import com.empresa.caudal.ui.screens.summary.SummaryScreen
 import com.empresa.caudal.ui.screens.transaction.TransactionEditorSheet
 import com.empresa.caudal.util.DateUtils
 
@@ -137,7 +138,10 @@ fun CaudalScaffold(viewModel: CaudalViewModel) {
                 )
             }
             composable(Screen.Summary.route) {
-                PlaceholderScreen("Resumen (Commit #9)")
+                SummaryScreen(
+                    transactions = monthlyTransactions,
+                    currencySymbol = settings.currencySymbol
+                )
             }
             composable(Screen.Budget.route) {
                 PlaceholderScreen("Presupuesto (Commit #10)")
