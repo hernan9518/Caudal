@@ -261,7 +261,15 @@ fun SettingsScreen(
                         Spacer(modifier = Modifier.height(12.dp))
 
                         OutlinedButton(
-                            onClick = { exportLauncher.launch("caudal_movimientos.csv") },
+                            onClick = {
+                                try {
+                                    exportLauncher.launch("caudal_movimientos.csv")
+                                } catch (e: Exception) {
+                                    scope.launch {
+                                        snackbarHostState.showSnackbar("No se encontró un gestor de archivos disponible")
+                                    }
+                                }
+                            },
                             shape = CircleShape,
                             modifier = Modifier.fillMaxWidth()
                         ) {
