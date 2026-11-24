@@ -60,6 +60,8 @@ fun CaudalScaffold(viewModel: CaudalViewModel) {
 
     val showMainBars = currentRoute in bottomNavItems.map { it.screen.route }
 
+    val context = androidx.compose.ui.platform.LocalContext.current
+
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
@@ -197,7 +199,7 @@ fun CaudalScaffold(viewModel: CaudalViewModel) {
                     onNavigateBack = { navController.popBackStack() },
                     onToggleDarkTheme = { viewModel.updateDarkTheme(it) },
                     onSelectCurrency = { viewModel.updateCurrencySymbol(it) },
-                    onToggleReminder = { viewModel.updateDailyReminderEnabled(it) },
+                    onToggleReminder = { viewModel.updateDailyReminderEnabled(context, it) },
                     onToggleBiometric = { viewModel.updateBiometricEnabled(it) },
                     onRequestExportData = { viewModel.getExportSnapshot() }
                 )

@@ -19,6 +19,8 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.YearMonth
+import android.content.Context
+import com.empresa.caudal.notifications.ReminderScheduler
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class CaudalViewModel(
@@ -139,8 +141,15 @@ class CaudalViewModel(
         viewModelScope.launch { repository.setBiometricEnabled(enabled) }
     }
 
-    fun updateDailyReminderEnabled(enabled: Boolean) {
-        viewModelScope.launch { repository.setDailyReminderEnabled(enabled) }
+    fun updateDailyReminderEnabled(context: Context, enabled: Boolean) {
+        viewModelScope.launch {
+            repository.setDailyReminderEnabled(enabled)
+            if (enabled) {
+                ReminderScheduler.scheduleDailyReminder(context)
+            } else {
+                ReminderScheduler.cancelDailyReminder(context)
+            }
+        }
     }
 
     suspend fun getExportSnapshot(): List<TransactionWithCategory> =
