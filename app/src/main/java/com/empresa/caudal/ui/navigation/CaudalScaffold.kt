@@ -37,6 +37,7 @@ import androidx.navigation.compose.rememberNavController
 import com.empresa.caudal.data.local.entity.TransactionWithCategory
 import com.empresa.caudal.ui.CaudalViewModel
 import com.empresa.caudal.ui.screens.activity.ActivityScreen
+import com.empresa.caudal.ui.screens.analytics.AnalyticsScreen
 import com.empresa.caudal.ui.screens.budget.BudgetScreen
 import com.empresa.caudal.ui.screens.categories.CategoriesScreen
 import com.empresa.caudal.ui.screens.summary.SummaryScreen
@@ -51,6 +52,7 @@ fun CaudalScaffold(viewModel: CaudalViewModel) {
     val selectedMonth by viewModel.selectedMonth.collectAsState()
 
     val categories by viewModel.categories.collectAsState()
+    val allTransactions by viewModel.allTransactions.collectAsState()
     val monthlyTransactions by viewModel.monthlyTransactions.collectAsState()
     val settings by viewModel.userSettings.collectAsState()
 
@@ -170,7 +172,12 @@ fun CaudalScaffold(viewModel: CaudalViewModel) {
                 )
             }
             composable(Screen.Analytics.route) {
-                PlaceholderScreen("Análisis (Commit #11)")
+                AnalyticsScreen(
+                    allTransactions = allTransactions,
+                    monthlyTransactions = monthlyTransactions,
+                    selectedMonth = selectedMonth,
+                    currencySymbol = settings.currencySymbol
+                )
             }
             composable(Screen.Categories.route) {
                 CategoriesScreen(
