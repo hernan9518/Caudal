@@ -266,7 +266,11 @@ fun SettingsScreen(
                                     exportLauncher.launch("caudal_movimientos.csv")
                                 } catch (e: Exception) {
                                     scope.launch {
-                                        snackbarHostState.showSnackbar("No se encontró un gestor de archivos disponible")
+                                        val snapshot = onRequestExportData()
+                                        val shared = CsvExporter.exportToCacheAndShare(context, snapshot)
+                                        if (!shared) {
+                                            snackbarHostState.showSnackbar("No se pudo exportar el historial")
+                                        }
                                     }
                                 }
                             },
