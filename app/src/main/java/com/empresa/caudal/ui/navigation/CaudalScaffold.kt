@@ -37,6 +37,7 @@ import androidx.navigation.compose.rememberNavController
 import com.empresa.caudal.data.local.entity.TransactionWithCategory
 import com.empresa.caudal.ui.CaudalViewModel
 import com.empresa.caudal.ui.screens.activity.ActivityScreen
+import com.empresa.caudal.ui.screens.budget.BudgetScreen
 import com.empresa.caudal.ui.screens.categories.CategoriesScreen
 import com.empresa.caudal.ui.screens.summary.SummaryScreen
 import com.empresa.caudal.ui.screens.transaction.TransactionEditorSheet
@@ -144,7 +145,29 @@ fun CaudalScaffold(viewModel: CaudalViewModel) {
                 )
             }
             composable(Screen.Budget.route) {
-                PlaceholderScreen("Presupuesto (Commit #10)")
+                BudgetScreen(
+                    monthlyBudget = settings.monthlyBudget,
+                    categories = categories,
+                    transactions = monthlyTransactions,
+                    currencySymbol = settings.currencySymbol,
+                    onUpdateGlobalBudget = { amount ->
+                        viewModel.updateMonthlyBudget(amount)
+                    },
+                    onUpdateCategoryBudget = { category, newBudget ->
+                        viewModel.saveCategory(
+                            id = category.id,
+                            name = category.name,
+                            iconKey = category.iconKey,
+                            colorHex = category.colorHex,
+                            type = category.type,
+                            monthlyBudget = newBudget,
+                            isDefault = category.isDefault
+                        )
+                    },
+                    onManageCategoriesClick = {
+                        navController.navigate(Screen.Categories.route)
+                    }
+                )
             }
             composable(Screen.Analytics.route) {
                 PlaceholderScreen("Análisis (Commit #11)")
