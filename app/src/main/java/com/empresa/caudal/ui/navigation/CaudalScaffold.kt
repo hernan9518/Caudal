@@ -1,9 +1,7 @@
 package com.empresa.caudal.ui.navigation
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -40,6 +38,7 @@ import com.empresa.caudal.ui.screens.activity.ActivityScreen
 import com.empresa.caudal.ui.screens.analytics.AnalyticsScreen
 import com.empresa.caudal.ui.screens.budget.BudgetScreen
 import com.empresa.caudal.ui.screens.categories.CategoriesScreen
+import com.empresa.caudal.ui.screens.settings.SettingsScreen
 import com.empresa.caudal.ui.screens.summary.SummaryScreen
 import com.empresa.caudal.ui.screens.transaction.TransactionEditorSheet
 import com.empresa.caudal.util.DateUtils
@@ -193,7 +192,15 @@ fun CaudalScaffold(viewModel: CaudalViewModel) {
                 )
             }
             composable(Screen.Settings.route) {
-                PlaceholderScreen("Ajustes (Commit #12)")
+                SettingsScreen(
+                    settings = settings,
+                    onNavigateBack = { navController.popBackStack() },
+                    onToggleDarkTheme = { viewModel.updateDarkTheme(it) },
+                    onSelectCurrency = { viewModel.updateCurrencySymbol(it) },
+                    onToggleReminder = { viewModel.updateDailyReminderEnabled(it) },
+                    onToggleBiometric = { viewModel.updateBiometricEnabled(it) },
+                    onRequestExportData = { viewModel.getExportSnapshot() }
+                )
             }
         }
     }
@@ -217,12 +224,5 @@ fun CaudalScaffold(viewModel: CaudalViewModel) {
                 navController.navigate(Screen.Categories.route)
             }
         )
-    }
-}
-
-@Composable
-private fun PlaceholderScreen(title: String) {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text(text = title, style = MaterialTheme.typography.titleMedium)
     }
 }
