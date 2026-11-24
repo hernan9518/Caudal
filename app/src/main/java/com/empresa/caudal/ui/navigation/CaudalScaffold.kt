@@ -36,6 +36,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.empresa.caudal.data.local.entity.TransactionWithCategory
 import com.empresa.caudal.ui.CaudalViewModel
+import com.empresa.caudal.ui.screens.categories.CategoriesScreen
 import com.empresa.caudal.ui.screens.transaction.TransactionEditorSheet
 import com.empresa.caudal.util.DateUtils
 
@@ -134,7 +135,17 @@ fun CaudalScaffold(viewModel: CaudalViewModel) {
                 PlaceholderScreen("Análisis (Mañana)")
             }
             composable(Screen.Categories.route) {
-                PlaceholderScreen("Categorías (Commit #7)")
+                CategoriesScreen(
+                    categories = categories,
+                    currencySymbol = settings.currencySymbol,
+                    onNavigateBack = { navController.popBackStack() },
+                    onSaveCategory = { id, name, iconKey, colorHex, type, budget, isDefault ->
+                        viewModel.saveCategory(id, name, iconKey, colorHex, type, budget, isDefault)
+                    },
+                    onDeleteCategory = { category, onResult ->
+                        viewModel.deleteCategory(category, onResult)
+                    }
+                )
             }
             composable(Screen.Settings.route) {
                 PlaceholderScreen("Ajustes (Mañana)")
