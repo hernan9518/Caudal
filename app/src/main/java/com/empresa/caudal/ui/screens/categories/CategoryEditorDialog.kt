@@ -37,6 +37,8 @@ import com.empresa.caudal.data.local.entity.CategoryEntity
 import com.empresa.caudal.domain.model.TransactionType
 import com.empresa.caudal.ui.theme.CategoryColors
 import com.empresa.caudal.util.IconMapper
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -61,7 +63,8 @@ fun CategoryEditorDialog(
             Text(text = if (existingCategory == null) "Nueva categoría" else "Editar categoría")
         },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+            Column(modifier = Modifier.verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(14.dp)) {
                 if (existingCategory == null) {
                     SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
                         SegmentedButton(

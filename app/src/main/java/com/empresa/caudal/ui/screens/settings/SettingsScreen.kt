@@ -187,32 +187,51 @@ fun SettingsScreen(
                 }
             }
 
-            // Recordatorio diario (se conectará a WorkManager en Commit #13)
+            // Recordatorio diario
             item {
                 SettingsSwitchCard(
                     icon = Icons.Rounded.NotificationsActive,
                     title = "Recordatorio diario",
-                    subtitle = "Aviso nocturno para no olvidar registrar tus gastos del día",
+                    subtitle = "Aviso nocturno (8:00 p. m.) para registrar tus gastos del día",
                     checked = settings.isDailyReminderEnabled,
                     onCheckedChange = { enable ->
-                        if (enable && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        if (!enable) {
+                            onToggleReminder(false)
+                            scope.launch {
+                                snackbarHostState.showSnackbar("Recordatorio diario desactivado")
+                            }
+                        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                             val granted = ContextCompat.checkSelfPermission(
                                 context,
                                 Manifest.permission.POST_NOTIFICATIONS
                             ) == PackageManager.PERMISSION_GRANTED
                             if (granted) {
                                 onToggleReminder(true)
+                                com.empresa.caudal.notifications.ReminderScheduler.sendConfirmationNotification(context)
+                                scope.launch {
+                                    snackbarHostState.showSnackbar("Recordatorio programado a las 8:00 p. m.")
+                                }
                             } else {
-                                notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                                try {
+                                    notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                                } catch (e: Exception) {
+                                    scope.launch {
+                                        snackbarHostState.showSnackbar("Activa los permisos de notificación en Ajustes del sistema")
+                                    }
+                                }
                             }
                         } else {
-                            onToggleReminder(enable)
+                            onToggleReminder(true)
+                            com.empresa.caudal.notifications.ReminderScheduler.sendConfirmationNotification(context)
+                            scope.launch {
+                                snackbarHostState.showSnackbar("Recordatorio programado a las 8:00 p. m.")
+                            }
                         }
                     }
                 )
             }
 
-            // Seguridad biométrica (se conectará a BiometricPrompt en Commit #13)
+            // Seguridad biométrica
             item {
                 SettingsSwitchCard(
                     icon = Icons.Rounded.Fingerprint,

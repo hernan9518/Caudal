@@ -2,6 +2,7 @@ package com.empresa.caudal.ui.screens.analytics
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,7 +20,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -28,12 +28,14 @@ import com.empresa.caudal.data.local.entity.TransactionWithCategory
 import com.empresa.caudal.domain.model.TransactionType
 import com.empresa.caudal.util.CurrencyFormatter
 import com.empresa.caudal.util.DateUtils
+import java.time.LocalDate
 import java.time.YearMonth
 
 @Composable
 fun DailyExpenseCalendar(
     monthlyTransactions: List<TransactionWithCategory>,
-    selectedMonth: YearMonth
+    selectedMonth: YearMonth,
+    onDayClick: (LocalDate) -> Unit
 ) {
     val weekHeaders = listOf("L", "M", "M", "J", "V", "S", "D")
 
@@ -44,8 +46,15 @@ fun DailyExpenseCalendar(
             .mapValues { (_, list) -> list.sumOf { it.transaction.amount } }
     }
 
+    val dailyIncomeMap = remember(monthlyTransactions) {
+        monthlyTransactions
+            .filter { it.transaction.type == TransactionType.INCOME }
+            .groupBy { DateUtils.toLocalDate(it.transaction.dateMillis).dayOfMonth }
+            .mapValues { (_, list) -> list.sumOf { it.transaction.amount } }
+    }
+
     val calendarCells = remember(selectedMonth) {
-        val firstDayOfWeek = selectedMonth.atDay(1).dayOfWeek.value // 1 = Lunes .. 7 = Domingo
+        val firstDayOfWeek = selectedMonth.atDay(1).dayOfWeek.value
         val leadingEmpty = firstDayOfWeek - 1
         val daysInMonth = selectedMonth.lengthOfMonth()
 
@@ -69,11 +78,22 @@ fun DailyExpenseCalendar(
                 .fillMaxWidth()
                 .padding(18.dp)
         ) {
-            Text(
-                text = "Calendario de gastos",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Calendario de gastos",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Text(
+                    text = "Toca un día",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
 
             Spacer(modifier = Modifier.height(14.dp))
 
@@ -103,6 +123,7 @@ fun DailyExpenseCalendar(
                             } else {
                                 val spent = dailyExpenseMap[day] ?: 0.0
                                 val hasExpense = spent > 0.0
+                                val hasAnyActivity = hasExpense || (dailyIncomeMap[day] ?: 0.0) > 0.0
 
                                 Box(
                                     modifier = Modifier
@@ -114,19 +135,20 @@ fun DailyExpenseCalendar(
                                             else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.55f)
                                         )
                                         .then(
-                                            if (hasExpense) Modifier.border(
+                                            if (hasAnyActivity) Modifier.border(
                                                 1.dp,
                                                 MaterialTheme.colorScheme.primary,
                                                 RoundedCornerShape(10.dp)
                                             ) else Modifier
-                                        ),
+                                        )
+                                        .clickable { onDayClick(selectedMonth.atDay(day)) },
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                         Text(
                                             text = day.toString(),
                                             fontSize = 12.sp,
-                                            fontWeight = if (hasExpense) FontWeight.Bold else FontWeight.Normal,
+                                            fontWeight = if (hasAnyActivity) FontWeight.Bold else FontWeight.Normal,
                                             color = if (hasExpense) MaterialTheme.colorScheme.onPrimaryContainer
                                             else MaterialTheme.colorScheme.onSurfaceVariant
                                         )
